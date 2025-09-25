@@ -277,7 +277,7 @@ bool Analog_Input_Name_Set(uint32_t object_instance, const char *new_name)
     pObject = Analog_Input_Object(object_instance);
     if (pObject) {
         status = true;
-        pObject->Object_Name = new_name;
+        pObject->Object_Name = strdup(new_name);
     }
 
     return status;
@@ -404,7 +404,7 @@ bool Analog_Input_Description_Set(
 
     pObject = Analog_Input_Object(object_instance);
     if (pObject) {
-        pObject->Description = new_name;
+        pObject->Description = strdup(new_name);
         status = true;
     }
 
@@ -1730,6 +1730,8 @@ bool Analog_Input_Delete(uint32_t object_instance)
 
     pObject = Keylist_Data_Delete(Object_List, object_instance);
     if (pObject) {
+        free(pObject->Object_Name);
+        free(pObject->Description);
         free(pObject);
         status = true;
     }
