@@ -29,10 +29,10 @@ struct object_data {
     bool Write_Enabled : 1;
     uint8_t Present_Value;
     uint8_t Reliability;
-    const char *Object_Name;
+    char *Object_Name;
     /* The state text functions expect a list of C strings separated by '\0' */
-    const char *State_Text;
-    const char *Description;
+    char *State_Text;
+    char *Description;
 };
 /* Key List for storing the object data sorted by instance number  */
 static OS_Keylist Object_List;
@@ -292,7 +292,7 @@ bool Multistate_Input_State_Text_List_Set(
 
     pObject = Keylist_Data(Object_List, object_instance);
     if (pObject) {
-        pObject->State_Text = state_text_list;
+        pObject->State_Text = strdup(state_text_list);
         status = true;
     }
 
@@ -536,7 +536,7 @@ bool Multistate_Input_Name_Set(uint32_t object_instance, const char *new_name)
     pObject = Multistate_Input_Object(object_instance);
     if (pObject) {
         status = true;
-        pObject->Object_Name = new_name;
+        pObject->Object_Name = strdup(new_name);
     }
 
     return status;
@@ -669,7 +669,7 @@ bool Multistate_Input_Description_Set(
     pObject = Multistate_Input_Object(object_instance);
     if (pObject) {
         status = true;
-        pObject->Description = new_name;
+        pObject->Description = strdup(new_name);
     }
 
     return status;
@@ -976,7 +976,8 @@ uint32_t Multistate_Input_Create(uint32_t object_instance)
         pObject = calloc(1, sizeof(struct object_data));
         if (pObject) {
             pObject->Object_Name = NULL;
-            pObject->State_Text = Default_State_Text;
+            pObject->Description = NULL;
+            pObject->State_Text = strdup(Default_State_Text);
             pObject->Out_Of_Service = false;
             pObject->Reliability = RELIABILITY_NO_FAULT_DETECTED;
             pObject->Change_Of_Value = false;
@@ -1008,6 +1009,9 @@ bool Multistate_Input_Delete(uint32_t object_instance)
 
     pObject = Keylist_Data_Delete(Object_List, object_instance);
     if (pObject) {
+        free(pObject->Object_Name);
+        free(pObject->Description);
+        free(pObject->State_Text);
         free(pObject);
         status = true;
     }
