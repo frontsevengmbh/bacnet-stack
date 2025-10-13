@@ -171,6 +171,31 @@ static unsigned state_name_count(const char *state_names)
 }
 
 /**
+ * @brief Count the number of bytes of the state_names char array, including the
+ * final 0-byte.
+ * @param state_names - string of null-terminated state names
+ * @return number of bytes.
+ */
+static size_t state_name_size(const char *state_names)
+{
+    size_t count = 0;
+    int len = 0;
+
+    if (state_names) {
+        do {
+            len = strlen(state_names);
+            if (len > 0) {
+                count += len + 1;
+                state_names = state_names + len + 1;
+            }
+        } while (len > 0);
+        count++;
+    }
+
+    return count;
+}
+
+/**
  * @brief Get the specific state name at index 0..N
  * @param state_names - string of null-terminated state names
  * @param state_index - state index number 1..N of the state names
@@ -279,6 +304,9 @@ static int Multistate_Input_State_Text_Encode(
  *     "76800\0"
  *     "115200\0"
  * };
+ * 
+ * The state_text_list argument will be copied. Therefore the caller
+ * can free the memory immediately after the function returns.
  *
  * @param  object_instance - object-instance number of the object
  * @param  state_text_list - array of state names to use in this object
@@ -292,8 +320,12 @@ bool Multistate_Input_State_Text_List_Set(
 
     pObject = Keylist_Data(Object_List, object_instance);
     if (pObject) {
-        pObject->State_Text = strdup(state_text_list);
-        status = true;
+        size_t size = state_name_size(state_text_list);
+        pObject->State_Text = malloc(size);
+        if (pObject->State_Text) {
+            memcpy(pObject->State_Text, state_text_list, size);
+            status = true;
+        }
     }
 
     return status;
