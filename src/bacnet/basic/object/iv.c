@@ -44,8 +44,8 @@ struct integer_object {
     uint32_t COV_Increment;
     uint16_t Units;
     uint32_t Instance;
-    const char *Object_Name;
-    const char *Description;
+    char *Object_Name;
+    char *Description;
 } INTERGER_VALUE_DESCR;
 
 /* These three arrays are used by the ReadPropertyMultiple handler */
@@ -271,7 +271,7 @@ bool Integer_Value_Name_Set(uint32_t object_instance, const char *new_name)
     pObject = Integer_Value_Object(object_instance);
     if (pObject) {
         status = true;
-        pObject->Object_Name = new_name;
+        pObject->Object_Name = strdup(new_name);
     }
 
     return status;
@@ -339,7 +339,7 @@ bool Integer_Value_Description_Set(
     pObject = Integer_Value_Object(object_instance);
     if (pObject) {
         status = true;
-        pObject->Description = new_name;
+        pObject->Description = strdup(new_name);
     }
 
     return status;
@@ -779,6 +779,8 @@ bool Integer_Value_Delete(uint32_t object_instance)
         Keylist_Data_Delete(Object_List, object_instance);
 
     if (pObject) {
+        free(pObject->Object_Name);
+        free(pObject->Description);
         free(pObject);
         status = true;
     }

@@ -33,8 +33,8 @@ typedef struct analog_value_descr {
     float Prior_Value;
     float COV_Increment;
     bool Changed;
-    const char *Object_Name;
-    const char *Description;
+    char *Object_Name;
+    char *Description;
     BACNET_RELIABILITY Reliability;
 #if defined(INTRINSIC_REPORTING)
     uint32_t Time_Delay;
