@@ -44,8 +44,8 @@ struct object_data {
     float Max_Pres_Value;
     uint16_t Units;
     uint8_t Reliability;
-    const char *Object_Name;
-    const char *Description;
+    char *Object_Name;
+    char *Description;
 };
 /* Key List for storing the object data sorted by instance number  */
 static OS_Keylist Object_List;
@@ -572,7 +572,7 @@ bool Analog_Output_Name_Set(uint32_t object_instance, const char *new_name)
     pObject = Keylist_Data(Object_List, object_instance);
     if (pObject) {
         status = true;
-        pObject->Object_Name = new_name;
+        pObject->Object_Name = strdup(new_name);
     }
 
     return status;
@@ -828,7 +828,7 @@ bool Analog_Output_Description_Set(
     pObject = Keylist_Data(Object_List, object_instance);
     if (pObject) {
         status = true;
-        pObject->Description = new_name;
+        pObject->Description = strdup(new_name);
     }
 
     return status;
@@ -1323,6 +1323,8 @@ bool Analog_Output_Delete(uint32_t object_instance)
 
     pObject = Keylist_Data_Delete(Object_List, object_instance);
     if (pObject) {
+        free(pObject->Object_Name);
+        free(pObject->Description);
         free(pObject);
         status = true;
     }
